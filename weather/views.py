@@ -3,45 +3,47 @@ from django.shortcuts import render
 from django.conf import settings
 
 def weather_view(request):
-    city = request.GET.get('city', 'London')  # Default to London
+    city = request.GET.get('city', 'London')
     
-    # Get API key from settings (which comes from .env)
-    api_key = settings.WEATHER_API_KEY
+    # Get API key from settings
+    api_key = getattr(settings, 'WEATHER_API_KEY', None)
     
     # Check if API key is configured
-    if not api_key or api_key == '70f7010d4422e80d4b71752c8ae8ded5a':
+    if not api_key:
+        context = {
+            'error': "API key not configured. Please set WEATHER_API_KEY in environment variables.",
+            'searched_city': city,
+            'weather_data': None
+        }
         return render(request, 'weather/weather.html', context)
     
+    # Build API URL
     url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric'
     
     weather_data = None
     error = None
     
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
+        
         if response.status_code == 200:
             data = response.json()
             weather_data = {
-                'city': data['name'],
-                'country': data['sys']['country'],
-                'temperature': data['main']['temp'],
-                'description': data['weather'][0]['description'],
-                'icon': data['weather'][0]['icon'],
-                'humidity': data['main']['humidity'],
-                'wind_speed': data['wind']['speed'],
-                'feels_like': data['main']['feels_like'],
-                'pressure': data['main']['pressure'],
+                'city': data.get('name', 'Unknown'),
+                'country': data.get('sys', {}).get('country', ''),
+                'temperature': data.get('main', {}).get('temp', 0),
+                'description': data.get('weather', [{}])[0].get('description', ''),
+                'icon': data.get('weather', [{}])[0].get('icon', ''),
+                'humidity': data.get('main', {}).get('humidity', 0),
+                'wind_speed': data.get('wind', {}).get('speed', 0),
+                'feels_like': data.get('main', {}).get('feels_like', 0),
+                'pressure': data.get('main', {}).get('pressure', 0),
             }
-        elif response.status_code == 401:
-            error = "Invalid API key. Please check your OpenWeatherMap API key in the .env file."
-        elif response.status_code == 404:
-            error = f"City '{city}' not found. Please try another city."
         else:
-            error = f"Error fetching weather data. API returned status: {response.status_code}"
-    except requests.exceptions.ConnectionError:
-        error = "Network error. Please check your internet connection."
-    except requests.exceptions.Timeout:
-        error = "Request timeout. Please try again."
+            error = f"Error: {response.status_code} - {response.json().get('message', 'Unknown error')}"
+            
+    except requests.exceptions.RequestException as e:
+        error = f"Network error: {str(e)}"
     except Exception as e:
         error = f"Unexpected error: {str(e)}"
     
