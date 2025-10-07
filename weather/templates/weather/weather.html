@@ -1,0 +1,73 @@
+{% extends 'weather/base.html' %}
+
+{% block content %}
+<h1>🌤️ Weather App</h1>
+<p class="subtitle">Get real-time weather information for any city</p>
+
+<form method="GET" class="search-form">
+    <input type="text" name="city" placeholder="Enter city name (e.g., London, Tokyo, New York)" value="{{ searched_city }}" required>
+    <button type="submit">🔍 Get Weather</button>
+</form>
+
+{% if error %}
+    <div class="error">
+        <h3>⚠️ Oops!</h3>
+        <p style="white-space: pre-line;">{{ error }}</p>
+        {% if "API key" in error %}
+            <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 5px;">
+                <small>Need help? Visit: <a href="https://openweathermap.org/api" target="_blank" style="color: white;">OpenWeatherMap API</a></small>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}
+
+{% if weather_data %}
+    <div class="weather-info">
+        <h2 class="location">📍 {{ weather_data.city }}, {{ weather_data.country }}</h2>
+        
+        <img src="http://openweathermap.org/img/w/{{ weather_data.icon }}.png" 
+             alt="{{ weather_data.description }}" 
+             class="weather-icon"
+             onerror="this.style.display='none'">
+        
+        <div class="temperature">{{ weather_data.temperature|floatformat:1 }}°C</div>
+        
+        <div class="description">
+            {{ weather_data.description|title }}
+        </div>
+
+        <div class="details">
+            <div class="detail-item">
+                <div class="detail-label">💧 Humidity</div>
+                <div class="detail-value">{{ weather_data.humidity }}%</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">💨 Wind Speed</div>
+                <div class="detail-value">{{ weather_data.wind_speed }} m/s</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">🌡️ Feels Like</div>
+                <div class="detail-value">{{ weather_data.feels_like|floatformat:1 }}°C</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">📊 Pressure</div>
+                <div class="detail-value">{{ weather_data.pressure }} hPa</div>
+            </div>
+        </div>
+    </div>
+{% elif not error and searched_city %}
+    <div class="loading"></div>
+    <p>Fetching weather data for {{ searched_city }}...</p>
+{% else %}
+    <div style="text-align: center; padding: 30px 0;">
+        <div style="font-size: 4em; margin-bottom: 20px;">🌤️</div>
+        <h3>Welcome to Weather App!</h3>
+        <p>Enter a city name above to get started.</p>
+        {% if not WEATHER_API_KEY %}
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #ffc107;">
+                <small>⚠️ Remember to set up your API key in the .env file</small>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌤️ Weather App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .weather-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .weather-container:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            color: #2d3436;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            color: #636e72;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #0984e3;
+            box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1);
+        }
+
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #0984e3, #074b83);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(9, 132, 227, 0.4);
+        }
+
+        .weather-info {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border-left: 5px solid #0984e3;
+        }
+
+        .location {
+            font-size: 1.8em;
+            color: #2d3436;
+            margin-bottom: 15px;
+            font-weight: 300;
+        }
+
+        .temperature {
+            font-size: 3em;
+            font-weight: 300;
+            color: #0984e3;
+            margin: 20px 0;
+        }
+
+        .description {
+            font-size: 1.3em;
+            color: #636e72;
+            text-transform: capitalize;
+            margin-bottom: 20px;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-label {
+            font-size: 0.9em;
+            color: #636e72;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ff7675, #d63031);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #d63031;
+        }
+
+        .weather-icon {
+            width: 120px;
+            height: 120px;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0984e3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px 0;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            color: #636e72;
+            font-size: 0.9em;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 20px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+            }
+
+            .weather-container {
+                padding: 25px 20px;
+                margin: 10px 0;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            input[type="text"] {
+                min-width: 100%;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .temperature {
+                font-size: 2.5em;
+            }
+
+            .details {
+                grid-template-columns: 1fr;
+            }
+
+            .weather-icon {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .weather-container {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .temperature {
+                font-size: 2em;
+            }
+
+            .location {
+                font-size: 1.5em;
+            }
+        }
+
+        /* Weather-specific backgrounds */
+        .weather-sunny {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+        }
+
+        .weather-cloudy {
+            background: linear-gradient(135deg, #dfe6e9, #b2bec3);
+        }
+
+        .weather-rainy {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+        }
+    </style>
+</head>
+<body>
+    <div class="weather-container">
+        {% block content %}
+        {% endblock %}
+        
+        <div class="footer">
+            <p>Built with Django & OpenWeatherMap API</p>
+        </div>
+    </div>
+    <script>
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on search input when page loads
+            const searchInput = document.querySelector('input[name="city"]');
+            if (searchInput) {
+                searchInput.focus();
+            }
+        
+            // Add loading state to form submission
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    const button = this.querySelector('button');
+                    if (button) {
+                        button.innerHTML = '⏳ Loading...';
+                        button.disabled = true;
+                    }
+                });
+            }
+        
+            // Add dynamic background based on weather
+            function updateBackground(description) {
+                const body = document.body;
+                if (description.includes('clear')) {
+                    body.classList.add('weather-sunny');
+                } else if (description.includes('cloud')) {
+                    body.classList.add('weather-cloudy');
+                } else if (description.includes('rain')) {
+                    body.classList.add('weather-rainy');
+                }
+            }
+        
+            // Check if we have weather data and update background
+            const weatherDescription = "{{ weather_data.description|default:'' }}";
+            if (weatherDescription) {
+                updateBackground(weatherDescription.toLowerCase());
+            }
+        });
+        </script>
+</body>
+</html>
+<script>
+// Add some interactive features
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus on search input when page loads
+    const searchInput = document.querySelector('input[name="city"]');
+    if (searchInput) {
+        searchInput.focus();
+    }
+
+    // Add loading state to form submission
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            const button = this.querySelector('button');
+            if (button) {
+                button.innerHTML = '⏳ Loading...';
+                button.disabled = true;
+            }
+        });
+    }
+
+    // Add dynamic background based on weather
+    function updateBackground(description) {
+        const body = document.body;
+        if (description.includes('clear')) {
+            body.classList.add('weather-sunny');
+        } else if (description.includes('cloud')) {
+            body.classList.add('weather-cloudy');
+        } else if (description.includes('rain')) {
+            body.classList.add('weather-rainy');
+        }
+    }
+
+    // Check if we have weather data and update background
+    const weatherDescription = "{{ weather_data.description|default:'' }}";
+    if (weatherDescription) {
+        updateBackground(weatherDescription.toLowerCase());
+    }
+});
+</script>
