@@ -10,24 +10,6 @@ def weather_view(request):
     
     # Check if API key is configured
     if not api_key or api_key == '70f7010d4422e80d4b71752c8ae8ded5a':
-        error = """
-        ⚠️ Weather API Key Not Configured
-        
-        Please set up your OpenWeatherMap API key:
-        
-        1. Go to https://openweathermap.org/api and sign up
-        2. Get your free API key
-        3. Update the WEATHER_API_KEY in your .env file
-        4. Restart the server
-        
-        Example .env line:
-        WEATHER_API_KEY=your_actual_api_key_here
-        """
-        context = {
-            'error': error,
-            'searched_city': city,
-            'weather_data': None
-        }
         return render(request, 'weather/weather.html', context)
     
     url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric'
